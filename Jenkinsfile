@@ -2,52 +2,28 @@ pipeline {
     agent any
     
     tools {
-        maven 'maven3'
+        nodejs 'node1'
     }
 
     stages {
-        stage('Git checkout') {
+        stage('Git Checkout') {
             steps {
-                git branch: 'main', credentialsId: 'DockerHub', url: 'https://github.com/abhim0055/SpringBoot-WebApplication.git'
+                git branch: 'main', credentialsId: 'github-auth', url: 'https://github.com/abhim0055/Covid19-ReactApp'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh 'npm install'
+                   
             }
         }
         
-        stage('build the job') {
+        stage('Build the artifact') {
             steps {
-                sh "mvn compile"
+                sh 'npm run build'
+                   
             }
         }
-        
-        stage('Test the build') {
-            steps {
-                sh "mvn test"
-            }
-        }
-        
-        stage('sonar qube scanning') {
-            steps {
-                withSonarQubeEnv('sonar') {
-                    sh "mvn sonar:sonar"
-                }
-            }
-        }
-        
-        stage('Maven build') {
-            steps {
-                sh "mvn clean package"
-            }
-        }
-        
-        stage('Docker Build and Push') {
-            steps {
-                withDockerRegistry(credentialsId: 'DockerHub', url: 'https://index.docker.io/v1/') {
-                sh '''
-                docker build -t web-app . 
-                docker tag web-app abhim0055/web-app:latest
-                docker push abhim0055/web-app:latest
-                '''
-            }
-        }
-    }
-    }
+}
 }
